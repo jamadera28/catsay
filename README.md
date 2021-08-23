@@ -9,7 +9,7 @@ Pass text to the program using any standard input method and the program with ou
 Using option `-w <1,2,3>` will specify __which__ cat you see, otherwise the cat you see is psuedorandomly chosen using C's rand() function from stdlib.h
   
 ### Sample runs
-`$ fortune | ./catsay` _`fortune` can be installed with sudo apt install fortune_
+`$ fortune | ./catsay`...  _`fortune` can be installed with `sudo apt install fortune`_
 
 `$ date | ./catsay -w 2`
 
