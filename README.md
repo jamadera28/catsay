@@ -10,5 +10,7 @@ Using option `-w <1,2,3>` will specify __which__ cat you see, otherwise the cat 
   
 ### Sample runs
 `$ fortune | ./catsay` _`fortune` can be installed with sudo apt install fortune_
+
 `$ date | ./catsay -w 2`
+
 `$ ./catsay -w 2 < words.txt`
