@@ -12,14 +12,23 @@ Using option `-w <1,2,3>` will specify __which__ cat you see, otherwise the cat 
 `$ fortune | ./catsay`...  _`fortune` can be installed with `sudo apt install fortune`_
 
  __________________________________________________________
+
 /                                                          \
+
 | But, for my own part, it was Greek to me.                |
+
 |               -- William Shakespeare, "Julius Caesar"    |
+
 \__________________________________________________________/
+          
           \           /)
+           
            \  /\___/\ ((
+              
               \`@_@'/  ))
+              
               {_:Y:.}_//
+
 hjw ----------{_}^-'{_}----------
 
 `$ date | ./catsay -w 2`
