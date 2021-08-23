@@ -1,5 +1,5 @@
 # catsay
-A fan imitation of `apt`'s popular cowsay, using cats
+A fan imitation of `apt`'s popular `cowsay`, using cats
 
 All ASCII cats were obtained from https://www.asciiart.eu/animals/cats
 
