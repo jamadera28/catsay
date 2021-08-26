@@ -15,7 +15,15 @@ int main(int argc, char *argv[])
     char catname[9] = {'c', 'a', 't', 0, '.', 't', 'x', 't', '\0' };
 
     if(argc == 3 && argv[1][1] == 'w')
-        catname[3] = argv[2][0];
+    {
+        if(argv[2][0] == '1' || argv[2][0] == '2' || argv[2][0] == '3')
+            catname[3] = argv[2][0];
+        else
+        {
+            fprintf(stderr, "invalid file choice cat%c.txt, random cat chosen\n", argv[2][0]);
+            catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
+        }
+    }
     else
     {
         if(argc > 1)
