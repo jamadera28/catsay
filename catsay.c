@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
     srand(time(0));
     char catname[9] = {'c', 'a', 't', 0, '.', 't', 'x', 't', '\0' };
-    //
+
     if(argc == 3 && argv[1][1] == 'w')
         catname[3] = argv[2][0];
     else
@@ -36,15 +36,6 @@ int main(int argc, char *argv[])
     }
     buf[i+1] = '\0';
     max_col+= 2;
-        
-    /*printf("There are %i tabs in the buffer\nmax_col = %i\n...\n\n",tabcnt, max_col);
-    for(int i = 0; buf[i] != '\0'; ++i)
-    {
-        printf("%0x ", buf[i]);
-        if(i%9 == 0)
-            putchar('\n');
-    }
-    putchar('\n');*/
 
     putchar(' '); print_loop('_', max_col); putchar(' ');
     printf("\n/"); print_loop(' ', max_col); printf("\\\n| ");
