@@ -3,7 +3,7 @@ A fan imitation of `apt`'s popular `cowsay`, using cats
 
 All ASCII cats were obtained from https://www.asciiart.eu/animals/cats
 
-## How to Use
+## How to Install
 Using GCC on the command line in Linux and Mac, build the program with `gcc -o catsay catsay.c`
 
 ## Usage
