@@ -3,6 +3,9 @@ A fan imitation of `apt`'s popular `cowsay`, using cats
 
 All ASCII cats were obtained from https://www.asciiart.eu/animals/cats
 
+## How to Use
+Using GCC on the command line in Linux and Mac, build the program with `gcc -o catsay catsay.c`
+
 ## Usage
 Pass text to the program using any standard input method and the program with output that text in a speech bubble being spoken by one of three ASCII cats picked at random
 
