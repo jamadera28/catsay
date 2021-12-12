@@ -20,44 +20,46 @@ int main(int argc, char *argv[])
     srand(time(0));
     char catname[9] = {'c', 'a', 't', 0, '.', 't', 'x', 't', '\0' };
     FILE *argstr = fopen("tmpargs","w+");
-    if( !argstr) { perror("catsay"); exit(1); }
+    if( !argstr) { perror("catsay: create tmpargs:"); exit(1); }
     FILE *stream = stdin;
     
     int o, index; 
-    char *w_opt = NULL;
     while (( o = getopt(argc, argv, "w:")) != -1)
         switch(o)
         {
             case 'w':
-                w_opt = optarg;
+                if( isdigit(optarg[0]) ) 
+                {
+                    catname[3] = optarg[0];
+                    if( optarg[1] != '\0' )
+                        fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
+                }
+                else
+                    fprintf(stderr,"Option -w requires a number <1,2,3>\n");
                 break;
             case '?':
                 if (optopt == 'w')
-                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                else if (isprint (optopt))
+                {
+                    catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
+                    fprintf (stderr, "Random cat chosen.\n");
+                }
+                    //fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                /*else if (isprint (optopt))
                     fprintf (stderr, "Unknown option `-%c'.\n", optopt);
                 else
-                    fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
+                    fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);*/
                 break;
             default:
                 abort();
         }
-    catname[3] = w_opt[0];
     for (index = optind; index < argc; index++)
     {
         fprintf(argstr, "%s", argv[index]);
-        //stream = argstr;
+        stream = argstr;
     }
 
     FILE *fp = fopen(catname, "rb");
-CHECK_CATNAME_OPEN:
-    if( !fp) 
-    { 
-        perror("catsay"); 
-        catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
-        fp = fopen(catname, "rb");
-        goto CHECK_CATNAME_OPEN;
-    }
+    if( !fp) { perror("catsay: read catfile:"); exit(1);}
     char buf[MAXBUF] = {};
     int c, col = 0, max_col = 0, i = 0, tabcnt = 0;
 
