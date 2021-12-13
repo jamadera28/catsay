@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     int catname = catname = (rand()%3 + 1);
     FILE *tmpargs = tmpfile();
     if( !tmpargs) { perror("catsay: create tmpfile"); exit(1); }
-    FILE *stream = stdin;
+    FILE *stream;
     
     int o, index; 
     while (( o = getopt(argc, argv, "w:")) != -1)
@@ -50,16 +50,31 @@ int main(int argc, char *argv[])
     for (index = optind; index < argc; index++)
     {
         fprintf(tmpargs, "%s", argv[index]);
-        printf("%s",argv[index]);
-        stream = tmpargs;
-        if( argc-index == 1 ) 
+        if( argc-index != 1)
+        {
+            fprintf(tmpargs, " ");
+        }
+        else {
             catname = (rand()%3 + 1);
+        }
     }
+
+    fseek(tmpargs, 0, SEEK_END);
+    if ( (ftell(tmpargs) == 0))
+    {
+        stream = stdin;
+    }
+    else
+    {
+        fprintf(tmpargs, "\n");
+        stream = tmpargs;
+    }
+    fseek(tmpargs, 0, SEEK_SET);
 
     char buf[MAXBUF] = {};
     int c, col = 0, max_col = 0, i = 0, tabcnt = 0;
 
-    while( (c = getchar()) != EOF)
+    while( (c = getc(stream)) != EOF)
     {
         buf[i] = c;
         if(c == '\t') { col = ((col + 8) / 8 * 8); tabcnt++; }
