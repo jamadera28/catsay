@@ -13,14 +13,14 @@
 //getopt usage from https://www.gnu.org
 
 void print_loop(char, int);
-void get_options(int, char *[], char *);
+void print_cat(int);
 
 int main(int argc, char *argv[])
 {
     srand(time(0));
-    char catname[9] = {'c', 'a', 't', 0, '.', 't', 'x', 't', '\0' };
-    FILE *argstr = fopen("tmpargs","w+");
-    if( !argstr) { perror("catsay: create tmpargs:"); exit(1); }
+    int catname = catname = (rand()%3 + 1);
+    FILE *tmpargs = tmpfile();
+    if( !tmpargs) { perror("catsay: create tmpfile"); exit(1); }
     FILE *stream = stdin;
     
     int o, index; 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
             case 'w':
                 if( isdigit(optarg[0]) ) 
                 {
-                    catname[3] = optarg[0];
+                    catname = optarg[0] - '0';
                     if( optarg[1] != '\0' )
                         fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
                 }
@@ -40,30 +40,26 @@ int main(int argc, char *argv[])
             case '?':
                 if (optopt == 'w')
                 {
-                    catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
+                    catname = (rand()%3 + 1); // A = 1, B = 3
                     fprintf (stderr, "Random cat chosen.\n");
                 }
-                    //fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                /*else if (isprint (optopt))
-                    fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-                else
-                    fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);*/
                 break;
             default:
                 abort();
         }
     for (index = optind; index < argc; index++)
     {
-        fprintf(argstr, "%s", argv[index]);
-        stream = argstr;
+        fprintf(tmpargs, "%s", argv[index]);
+        printf("%s",argv[index]);
+        stream = tmpargs;
+        if( argc-index == 1 ) 
+            catname = (rand()%3 + 1);
     }
 
-    FILE *fp = fopen(catname, "rb");
-    if( !fp) { perror("catsay: read catfile:"); exit(1);}
     char buf[MAXBUF] = {};
     int c, col = 0, max_col = 0, i = 0, tabcnt = 0;
 
-    while( (c = getc(stream)) != EOF)
+    while( (c = getchar()) != EOF)
     {
         buf[i] = c;
         if(c == '\t') { col = ((col + 8) / 8 * 8); tabcnt++; }
@@ -106,41 +102,9 @@ int main(int argc, char *argv[])
     }
     putchar('\\'); print_loop('_', max_col); printf("/\n");
 
-    while( (c = fgetc(fp)) != EOF) putchar(c);
-    putchar('\n');
-    fclose(argstr);
-    remove("tmpargs");
-    fclose(fp);
+    print_cat(catname);
     return 0;
 }
-
-void get_options(int argc, char *argv[], char *catname)
-{
-    if(argv[1][0] == '-')
-    {
-        if( argv[1][1] == 'w') 
-        {
-            if(argv[2][0] == '1' || argv[2][0] == '2' || argv[2][0] == '3')
-                catname[3] = argv[2][0];
-            else
-            {
-                fprintf(stderr, "invalid choice of which cat, cat%c.txt; random cat chosen\n", argv[2][0]);
-                catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
-            }
-        }    
-        else
-        {
-            if(argc > 1) {
-                fprintf(stderr, "unknown option: %s\n", argv[1]);
-                exit(1);
-            }
-            catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
-        }
-    }
-    else
-        catname[3] = (rand()%3 + 1) + '0'; // A = 1, B = 3
-}
-
 
 void print_loop(char c, int cnt)
 {
@@ -151,4 +115,30 @@ void print_loop(char c, int cnt)
         print_loop(c, cnt);
     }
     else return;
+}
+
+void print_cat(int cat_type) 
+{
+START:
+    switch(cat_type) 
+    {
+        case(1):
+            printf("           \\           /)\n            \\  /\\___/\\ ((\n               \\`@_@'/  ))\n               {_:Y:.}_//\n hjw ----------{_}^-'{_}----------");
+            break;
+        case(2):
+            printf("          /\n         /              | \\\n        /               | |\n       /                | |\n   |\\                   | |\n  /, ~\\                / /\n X     `-.....-------./ /\n  ~-. ~  ~              |\n     \\             /    |\n      \\  /_     ___\\   /\n      | /\\ ~~~~~   \\ |\n      | | \\        || |\n      | |\\ \\       || )\n     (_/ (_/      ((_/");
+            break;
+        case(3):
+            printf("     \\\n      \\   \\`*-.\n       \\   )  _`-.\n          .  : `. .\n          : _   '  \\\n          ; *` _.   `*-._\n          `-.-'          `-.\n            ;       `       `.\n            :.       .        \\\n            . \\  .   :   .-'   .\n            '  `+.;  ;  '      :\n            :  '  |    ;       ;-.\n            ; '   : :`-:     _.`* ;\n   [bug] .*' /  .*' ; .*`- +'  `*'\n         `*-*   `*-*  `*-*'");
+            break;
+        default:
+            goto DEFAULT_ERROR;
+            break;
+    }
+    putchar('\n');
+    return;
+DEFAULT_ERROR:
+    cat_type = (rand()%3 + 1);
+    fprintf(stderr,"%s() chose a random cat.\n",__func__);
+    goto START;
 }
