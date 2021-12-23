@@ -18,12 +18,12 @@ void print_cat(int);
 int main(int argc, char *argv[])
 {
     srand(time(0));
-    int catname = catname = (rand()%3 + 1);
+    int catname;
     FILE *tmpargs = tmpfile();
     if( !tmpargs) { perror("catsay: create tmpfile"); exit(1); }
     FILE *stream;
     
-    int o, index; 
+    int o, index, i_flag = 0; 
     while (( o = getopt(argc, argv, "w:")) != -1)
         switch(o)
         {
@@ -31,11 +31,20 @@ int main(int argc, char *argv[])
                 if( isdigit(optarg[0]) ) 
                 {
                     catname = optarg[0] - '0';
+                    if( catname != 1 && catname != 2 && catname != 3) 
+                    {
+                        fprintf(stderr,"Option -w requires a number from <1,2,3>\nRandom cat chosen.\n");
+                        catname = (rand()%3 + 1);
+                    }
                     if( optarg[1] != '\0' )
                         fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
                 }
                 else
-                    fprintf(stderr,"Option -w requires a number <1,2,3>\n");
+                {
+                    fprintf(stderr,"Option -w requires a number, <1,2,3>\nRandom cat chosen.\n");
+                    catname = (rand()%3 + 1); // A = 1, B = 3
+                    i_flag = 1;
+                }
                 break;
             case '?':
                 if (optopt == 'w')
@@ -47,6 +56,7 @@ int main(int argc, char *argv[])
             default:
                 abort();
         }
+    if( i_flag) optind--;
     for (index = optind; index < argc; index++)
     {
         fprintf(tmpargs, "%s", argv[index]);
@@ -54,9 +64,10 @@ int main(int argc, char *argv[])
         {
             fprintf(tmpargs, " ");
         }
-        else {
+        /*else 
+        {
             catname = (rand()%3 + 1);
-        }
+        }*/
     }
 
     fseek(tmpargs, 0, SEEK_END);
@@ -154,6 +165,6 @@ START:
     return;
 DEFAULT_ERROR:
     cat_type = (rand()%3 + 1);
-    fprintf(stderr,"%s() chose a random cat.\n",__func__);
+    //fprintf(stderr,"%s() chose a random cat.\n",__func__);
     goto START;
 }
