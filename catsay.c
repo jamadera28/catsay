@@ -165,6 +165,6 @@ START:
     return;
 DEFAULT_ERROR:
     cat_type = (rand()%3 + 1);
-    fprintf(stderr,"%s() chose a random cat.\n",__func__);
+    //fprintf(stderr,"%s() chose a random cat.\n",__func__);
     goto START;
 }
