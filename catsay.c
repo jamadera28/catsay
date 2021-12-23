@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <error.h>
 
+#define MAX_CATS 4
 #define MAXBUF 5000
 
 //CAT ASCII art images found on https://www.asciiart.eu/animals/cats
@@ -31,25 +32,25 @@ int main(int argc, char *argv[])
                 if( isdigit(optarg[0]) ) 
                 {
                     catname = optarg[0] - '0';
-                    if( catname != 1 && catname != 2 && catname != 3) 
+                    if( catname != 1 && catname != 2 && catname != 3 && catname != 4) 
                     {
-                        fprintf(stderr,"Option -w requires a number from <1,2,3>\nRandom cat chosen.\n");
-                        catname = (rand()%3 + 1);
+                        fprintf(stderr,"Option -w requires a number from <1,2,3,4>\nRandom cat chosen.\n");
+                        catname = (rand()%MAX_CATS + 1);
                     }
                     if( optarg[1] != '\0' )
                         fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
                 }
                 else
                 {
-                    fprintf(stderr,"Option -w requires a number, <1,2,3>\nRandom cat chosen.\n");
-                    catname = (rand()%3 + 1); // A = 1, B = 3
+                    fprintf(stderr,"Option -w requires a number, <1,2,3,4>\nRandom cat chosen.\n");
+                    catname = (rand()%MAX_CATS + 1); // A = 1, B = 3
                     i_flag = 1;
                 }
                 break;
             case '?':
                 if (optopt == 'w')
                 {
-                    catname = (rand()%3 + 1); // A = 1, B = 3
+                    catname = (rand()%MAX_CATS + 1); // A = 1, B = 3
                     fprintf (stderr, "Random cat chosen.\n");
                 }
                 break;
@@ -64,10 +65,6 @@ int main(int argc, char *argv[])
         {
             fprintf(tmpargs, " ");
         }
-        /*else 
-        {
-            catname = (rand()%3 + 1);
-        }*/
     }
 
     fseek(tmpargs, 0, SEEK_END);
@@ -157,6 +154,9 @@ START:
         case(3):
             printf("     \\\n      \\   \\`*-.\n       \\   )  _`-.\n          .  : `. .\n          : _   '  \\\n          ; *` _.   `*-._\n          `-.-'          `-.\n            ;       `       `.\n            :.       .        \\\n            . \\  .   :   .-'   .\n            '  `+.;  ;  '      :\n            :  '  |    ;       ;-.\n            ; '   : :`-:     _.`* ;\n   [bug] .*' /  .*' ; .*`- +'  `*'\n         `*-*   `*-*  `*-*'");
             break;
+        case(4):
+            printf("      \\ ^  /\\\n       )  ( ')\n      (  /  )\njgs    \\(__)|");
+            break;
         default:
             goto DEFAULT_ERROR;
             break;
@@ -164,7 +164,7 @@ START:
     putchar('\n');
     return;
 DEFAULT_ERROR:
-    cat_type = (rand()%3 + 1);
+    cat_type = (rand()%MAX_CATS + 1);
     //fprintf(stderr,"%s() chose a random cat.\n",__func__);
     goto START;
 }
