@@ -9,7 +9,7 @@ On the command line in Linux and Mac, build the program with `gcc -o catsay cats
 ## Usage
 Pass text to the program using any standard input method and the program with output that text in a speech bubble being spoken by one of three ASCII cats picked at random
 
-Using option `-w <1,2,3>` will specify __which__ cat you see, otherwise the cat you see is psuedorandomly chosen using C's `rand()` function from stdlib.h
+Using option `-w <1,2,3,4>` will specify __which__ cat you see, otherwise the cat you see is psuedorandomly chosen using C's `rand()` function from stdlib.h
   
 ### Sample runs
 `$ ./catsay hello there!`
