@@ -15,17 +15,23 @@
 
 void print_loop(char, int);
 void print_cat(int);
+int random_cat_error();
 
 int main(int argc, char *argv[])
 {
     srand(time(0));
     int catname;
     FILE *tmpargs = tmpfile();
-    if( !tmpargs) { perror("catsay: create tmpfile"); exit(1); }
+    if(!tmpargs) 
+    { 
+        perror("catsay: create tmpfile"); 
+        exit(1); 
+    }
     FILE *stream;
     
     int o, index, i_flag = 0; 
     while (( o = getopt(argc, argv, "w:")) != -1)
+    {
         switch(o)
         {
             case 'w':
@@ -34,29 +40,28 @@ int main(int argc, char *argv[])
                     catname = optarg[0] - '0';
                     if( catname != 1 && catname != 2 && catname != 3 && catname != 4) 
                     {
-                        fprintf(stderr,"Option -w requires a number from <1,2,3,4>\nRandom cat chosen.\n");
-                        catname = (rand()%MAX_CATS + 1);
+                        catname = random_cat_error(1);
                     }
                     if( optarg[1] != '\0' )
                         fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
                 }
                 else
                 {
-                    fprintf(stderr,"Option -w requires a number, <1,2,3,4>\nRandom cat chosen.\n");
-                    catname = (rand()%MAX_CATS + 1); // A = 1, B = 3
+                    catname = random_cat_error(1);
                     i_flag = 1;
                 }
                 break;
             case '?':
                 if (optopt == 'w')
                 {
-                    catname = (rand()%MAX_CATS + 1); // A = 1, B = 3
-                    fprintf (stderr, "Random cat chosen.\n");
+                    catname = random_cat_error(0);
                 }
                 break;
             default:
                 abort();
         }
+    }
+
     if( i_flag) optind--;
     for (index = optind; index < argc; index++)
     {
@@ -89,12 +94,12 @@ int main(int argc, char *argv[])
         if(c == '\n') { max_col = col > max_col ? col : max_col; col = 0;}
         col++; i++;
     }
-    buf[i+1] = '\0';
+    buf[i] = '\0';
     max_col+= 2;
 
     putchar(' '); print_loop('_', max_col); putchar(' ');
     printf("\n/"); print_loop(' ', max_col); printf("\\\n| ");
-    i = 0; col = 0, tabcnt = 0;
+    i = 0; col = 0; tabcnt = 0;
     int lineno = 0, tabline = -1;
 
     while(1)
@@ -127,6 +132,14 @@ int main(int argc, char *argv[])
 
     print_cat(catname);
     return 0;
+}
+
+int random_cat_error(int opt)
+{
+    if(opt)
+        fprintf(stderr,"Option -w requires a number [1-4]\n");
+    fprintf(stderr, "Random cat chosen.\n");
+    return (rand()%MAX_CATS + 1);
 }
 
 void print_loop(char c, int cnt)
@@ -164,7 +177,6 @@ START:
     putchar('\n');
     return;
 DEFAULT_ERROR:
-    cat_type = (rand()%MAX_CATS + 1);
-    //fprintf(stderr,"%s() chose a random cat.\n",__func__);
+    cat_type = random_cat_error(0);
     goto START;
 }
