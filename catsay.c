@@ -7,7 +7,7 @@
 #define MAX_CATS 4
 #define MAXBUF 5000
 enum errcode {NOT_IN_RANGE, NOT_A_NUMBER, HAS_ADDITIONAL_CHARS};
-
+int SILENT = 0;
 //CAT ASCII art images found on https://www.asciiart.eu/animals/cats
 //credit/signatures left in images originally containing them
 //
@@ -22,13 +22,11 @@ FILE *safe_create_tmpfile();
 
 int main(int argc, char *argv[])
 {
-    srand(time(0));
     FILE *tmpargs = safe_create_tmpfile();
     FILE *stream;
 
     int catname = parse_catname_from_opts(argc, argv);
 
-    if (1) optind--;
     for (int index = optind; index < argc; index++)
     {
         fprintf(tmpargs, "%s", argv[index]);
@@ -109,7 +107,7 @@ int parse_catname_from_opts(int argc, char *argv[])
         switch(o)
         {
             case 'w':
-                if( !isdigit(optarg[0]) ) 
+                if( isdigit(optarg[0]) ) 
                 {
                     catname = optarg[0] - '0'; // atoi()
                     if( optarg[1] != '\0' )
@@ -124,6 +122,7 @@ int parse_catname_from_opts(int argc, char *argv[])
                 }
                 else
                 {
+                    error(NOT_A_NUMBER);
                     catname = get_random_cat(); // decrement optind
                 }
                 break;
@@ -156,6 +155,7 @@ FILE *safe_create_tmpfile()
 //  returns false otherwise and can be ignored
 void error(int errcode)
 {
+    //fprintf(stderr, "%s: ", argv[0])
     if(errcode == NOT_IN_RANGE || errcode == NOT_A_NUMBER)
     {
         fprintf(stderr,"Option -w requires a number [1-4]\n");
@@ -168,7 +168,9 @@ void error(int errcode)
 
 int get_random_cat()
 {
-    fprintf(stderr, "Random cat chosen.\n");
+    srand(time(0));
+    if(SILENT == 0 )
+        fprintf(stderr, "Random cat chosen.\n");
     return (rand()%MAX_CATS + 1);
 }
 
@@ -210,6 +212,8 @@ START:
     putchar('\n');
     return;
 DEFAULT_ERROR:
+    SILENT = 1;
     which = get_random_cat();
+    SILENT = 0;
     goto START;
 }
