@@ -87,3 +87,16 @@ $ ./catsay -w 4 < words.txt
 jgs    \(__)|
 ```
 
+```
+$ ./catsay -w 4 my new message! -s
+ _________________ 
+/                 \
+| my new message! |
+\_________________/
+      \ ^  /\
+       )  ( ')
+      (  /  )
+jgs    \(__)|
+
+SPECIAL!
+```
