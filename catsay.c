@@ -3,67 +3,33 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include <error.h>
 
 #define MAX_CATS 4
 #define MAXBUF 5000
+enum errcode {NOT_IN_RANGE, NOT_A_NUMBER, HAS_ADDITIONAL_CHARS};
 
 //CAT ASCII art images found on https://www.asciiart.eu/animals/cats
 //credit/signatures left in images originally containing them
 //
 //getopt usage from https://www.gnu.org
 
-void print_loop(char, int);
-void print_cat(int);
-int random_cat_error();
+void print_loop(char, int cnt);
+void print_cat(int which);
+void error(int errcode);
+int get_random_cat();
+int parse_catname_from_opts(int, char *[]);
+FILE *safe_create_tmpfile();
 
 int main(int argc, char *argv[])
 {
     srand(time(0));
-    int catname;
-    FILE *tmpargs = tmpfile();
-    if(!tmpargs) 
-    { 
-        perror("catsay: create tmpfile"); 
-        exit(1); 
-    }
+    FILE *tmpargs = safe_create_tmpfile();
     FILE *stream;
-    
-    int o, index, i_flag = 0; 
-    while (( o = getopt(argc, argv, "w:")) != -1)
-    {
-        switch(o)
-        {
-            case 'w':
-                if( isdigit(optarg[0]) ) 
-                {
-                    catname = optarg[0] - '0';
-                    if( catname != 1 && catname != 2 && catname != 3 && catname != 4) 
-                    {
-                        catname = random_cat_error(1);
-                    }
-                    if( optarg[1] != '\0' )
-                        fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
-                }
-                else
-                {
-                    catname = random_cat_error(1);
-                    i_flag = 1;
-                }
-                break;
-            case '?':
-                if (optopt == 'w')
-                {
-                    catname = random_cat_error(0);
-                }
-                break;
-            default:
-                abort();
-        }
-    }
 
-    if( i_flag) optind--;
-    for (index = optind; index < argc; index++)
+    int catname = parse_catname_from_opts(argc, argv);
+
+    if (1) optind--;
+    for (int index = optind; index < argc; index++)
     {
         fprintf(tmpargs, "%s", argv[index]);
         if( argc-index != 1)
@@ -72,6 +38,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    // stream *verify_stream(tmpargs)
     fseek(tmpargs, 0, SEEK_END);
     if ( (ftell(tmpargs) == 0))
     {
@@ -134,16 +101,82 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int random_cat_error(int opt)
+int parse_catname_from_opts(int argc, char *argv[])
 {
-    if(opt)
+    int o, catname = -1;
+    while (( o = getopt(argc, argv, "w:")) != -1)
+    {
+        switch(o)
+        {
+            case 'w':
+                if( !isdigit(optarg[0]) ) 
+                {
+                    catname = optarg[0] - '0'; // atoi()
+                    if( optarg[1] != '\0' )
+                    {
+                        error(HAS_ADDITIONAL_CHARS);
+                    }
+                    if( catname > MAX_CATS || catname <= 0 ) 
+                    {
+                        error(NOT_IN_RANGE);
+                        catname = get_random_cat();
+                    }
+                }
+                else
+                {
+                    catname = get_random_cat(); // decrement optind
+                }
+                break;
+            case '?':
+                if (optopt == 'w')
+                {
+                    error(NOT_A_NUMBER);
+                    catname = get_random_cat();
+                }
+                break;
+            default:
+                abort();
+        }
+    }
+    return catname;
+}
+
+FILE *safe_create_tmpfile()
+{
+    FILE *tmpargs = tmpfile();
+    if(tmpargs == NULL) 
+    { 
+        perror("catsay: create tmpfile"); 
+        exit(1); 
+    }
+    return tmpargs;
+}
+
+//  returns true if the error requires the generation of a random cat
+//  returns false otherwise and can be ignored
+void error(int errcode)
+{
+    if(errcode == NOT_IN_RANGE || errcode == NOT_A_NUMBER)
+    {
         fprintf(stderr,"Option -w requires a number [1-4]\n");
+    }
+    else if (errcode == HAS_ADDITIONAL_CHARS)
+    {
+        fprintf(stderr, "Option -w interpretted its argument as '%c', all other characters were ignored.\n", optarg[0]);
+    }
+}
+
+int get_random_cat()
+{
     fprintf(stderr, "Random cat chosen.\n");
     return (rand()%MAX_CATS + 1);
 }
 
 void print_loop(char c, int cnt)
 {
+    // TODO :
+    // for cnt do
+        // generate string of " " w sizeof cnt
     if(cnt > 0)
     {
         putchar(c);
@@ -153,10 +186,10 @@ void print_loop(char c, int cnt)
     else return;
 }
 
-void print_cat(int cat_type) 
+void print_cat(int which) 
 {
 START:
-    switch(cat_type) 
+    switch(which) 
     {
         case(1):
             printf("           \\           /)\n            \\  /\\___/\\ ((\n               \\`@_@'/  ))\n               {_:Y:.}_//\n hjw ----------{_}^-'{_}----------");
@@ -177,6 +210,6 @@ START:
     putchar('\n');
     return;
 DEFAULT_ERROR:
-    cat_type = random_cat_error(0);
+    which = get_random_cat();
     goto START;
 }
