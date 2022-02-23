@@ -6,8 +6,8 @@
 
 #define MAX_CATS 4
 #define MAXBUF 5000
-enum errcode {NOT_IN_RANGE, NOT_A_NUMBER, HAS_ADDITIONAL_CHARS};
-int SILENT = 0;
+enum errcode {NOT_IN_RANGE, NOT_A_NUMBER, HAS_ADDITIONAL_CHARS, ABORT_ERROR};
+int SPECIAL_FLAG = 0;
 //CAT ASCII art images found on https://www.asciiart.eu/animals/cats
 //credit/signatures left in images originally containing them
 //
@@ -15,9 +15,10 @@ int SILENT = 0;
 
 void print_loop(char, int cnt);
 void print_cat(int which);
+void print_special();
 void error(int errcode);
 int get_random_cat();
-int parse_catname_from_opts(int, char *[]);
+int parse_opts(int, char *[]);
 FILE *safe_create_tmpfile();
 
 int main(int argc, char *argv[])
@@ -25,8 +26,7 @@ int main(int argc, char *argv[])
     FILE *tmpargs = safe_create_tmpfile();
     FILE *stream;
 
-    int catname = parse_catname_from_opts(argc, argv);
-
+    int catname = parse_opts(argc, argv);
     for (int index = optind; index < argc; index++)
     {
         fprintf(tmpargs, "%s", argv[index]);
@@ -96,16 +96,21 @@ int main(int argc, char *argv[])
     putchar('\\'); print_loop('_', max_col); printf("/\n");
 
     print_cat(catname);
+    if( SPECIAL_FLAG )
+        print_special();
     return 0;
 }
 
-int parse_catname_from_opts(int argc, char *argv[])
+int parse_opts(int argc, char *argv[])
 {
-    int o, catname = -1;
-    while (( o = getopt(argc, argv, "w:")) != -1)
+    int o, catname = -1, print_msg = 1;
+    while (( o = getopt(argc, argv, "sw:")) != -1)
     {
         switch(o)
         {
+            case 's':
+                SPECIAL_FLAG = 1;
+                break;
             case 'w':
                 if( isdigit(optarg[0]) ) 
                 {
@@ -117,23 +122,25 @@ int parse_catname_from_opts(int argc, char *argv[])
                     if( catname > MAX_CATS || catname <= 0 ) 
                     {
                         error(NOT_IN_RANGE);
-                        catname = get_random_cat();
+                        catname = get_random_cat(print_msg);
                     }
                 }
                 else
                 {
                     error(NOT_A_NUMBER);
-                    catname = get_random_cat(); // decrement optind
+                    catname = get_random_cat(print_msg); // decrement optind
+                    optind--;
                 }
                 break;
             case '?':
                 if (optopt == 'w')
                 {
                     error(NOT_A_NUMBER);
-                    catname = get_random_cat();
+                    catname = get_random_cat(print_msg);
                 }
                 break;
             default:
+                error(ABORT_ERROR);
                 abort();
         }
     }
@@ -156,6 +163,10 @@ FILE *safe_create_tmpfile()
 void error(int errcode)
 {
     //fprintf(stderr, "%s: ", argv[0])
+    if(errcode == ABORT_ERROR)
+    {
+        fprintf(stderr,"Unknown error. Aborting.\n");
+    }
     if(errcode == NOT_IN_RANGE || errcode == NOT_A_NUMBER)
     {
         fprintf(stderr,"Option -w requires a number [1-4]\n");
@@ -166,10 +177,10 @@ void error(int errcode)
     }
 }
 
-int get_random_cat()
+int get_random_cat(int print_msg)
 {
     srand(time(0));
-    if(SILENT == 0 )
+    if(print_msg)
         fprintf(stderr, "Random cat chosen.\n");
     return (rand()%MAX_CATS + 1);
 }
@@ -186,6 +197,11 @@ void print_loop(char c, int cnt)
         print_loop(c, cnt);
     }
     else return;
+}
+
+void print_special()
+{
+    printf("\nSPECIAL!\n");
 }
 
 void print_cat(int which) 
@@ -212,8 +228,6 @@ START:
     putchar('\n');
     return;
 DEFAULT_ERROR:
-    SILENT = 1;
-    which = get_random_cat();
-    SILENT = 0;
+    which = get_random_cat(0);
     goto START;
 }
