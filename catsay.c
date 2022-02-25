@@ -228,6 +228,7 @@ START:
     putchar('\n');
     return;
 DEFAULT_ERROR:
-    which = get_random_cat(0);
+    int do_not_print_msg = 0;
+    which = get_random_cat(do_not_print_msg);
     goto START;
 }
