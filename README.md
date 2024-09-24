@@ -47,7 +47,6 @@ $ fortune | ./catsay
    [bug] .*' /  .*' ; .*`- +'  `*'
          `*-*   `*-*  `*-*'
 ```
-... _`fortune` can be installed with `sudo apt install fortune`_
 
 ```
 $ date | ./catsay -w 2
