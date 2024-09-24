@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include <error.h>
 
 #define MAX_CATS 4
 #define MAXBUF 5000
